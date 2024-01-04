@@ -9,4 +9,5 @@ add_executable(Raytracer main.cpp
         hittable_list.h
         rtutil.h
         interval.h
-        camera.h)
+        camera.h
+        material.h)
