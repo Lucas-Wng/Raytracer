@@ -47,7 +47,7 @@ public:
 
         pool.wait_until_empty();
 
-        std::clog << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+        std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
         for (int j = 0; j < image_height; ++j) {
             for (int i = 0; i < image_width; ++i) {
                 write_color(std::cout, framebuffer[j][i], samples_per_pixel);

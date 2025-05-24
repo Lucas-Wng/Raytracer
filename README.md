@@ -1,6 +1,7 @@
 # Raytracer
 
-Created a raytracer from scratch using C++ without external libraries. Concepts were learned from the Ray Tracing in One Weekend Textbook series.
+Created a multi-threaded raytracer from scratch using C++. Concepts were learned from the Ray Tracing in One Weekend Textbook series.
 
-# Render Example
-![image](./finalrender.png)
+# Render Examples
+![image1](./images/image1.png)
+![image1](./images/image2.png)
