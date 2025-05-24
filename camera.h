@@ -6,8 +6,10 @@
 #include "color.h"
 #include "hittable.h"
 #include "material.h"
+#include "threadpool.h"
 
 #include <iostream>
+#include <chrono>
 
 class camera {
 public:
@@ -26,21 +28,35 @@ public:
 
     void render(const hittable& world) {
         initialize();
-
-        std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+        auto start = std::chrono::high_resolution_clock::now();
+        std::vector<std::vector<color>> framebuffer(image_height, std::vector<color>(image_width));
+        ThreadPool pool(std::thread::hardware_concurrency());
 
         for (int j = 0; j < image_height; ++j) {
-            std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
-            for (int i = 0; i < image_width; ++i) {
-                color pixel_color(0,0,0);
-                for (int sample = 0; sample < samples_per_pixel; ++sample) {
-                    ray r = get_ray(i, j);
-                    pixel_color += ray_color(r, max_depth, world);
+            pool.enqueue([this, j, &world, &framebuffer]() {
+                for (int i = 0; i < image_width; ++i) {
+                    color pixel_color(0, 0, 0);
+                    for (int s = 0; s < samples_per_pixel; ++s) {
+                        ray r = get_ray(i, j);
+                        pixel_color += ray_color(r, max_depth, world);
+                    }
+                    framebuffer[j][i] = pixel_color;
                 }
-                write_color(std::cout, pixel_color, samples_per_pixel);
-            }
+            });
         }
 
+        pool.wait_until_empty();
+
+        std::clog << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+        for (int j = 0; j < image_height; ++j) {
+            for (int i = 0; i < image_width; ++i) {
+                write_color(std::cout, framebuffer[j][i], samples_per_pixel);
+            }
+        }
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed = end - start;
+
+        std::clog << "Elapsed time: " << elapsed.count() << " seconds\n";
         std::clog << "\rDone.                 \n";
     }
 

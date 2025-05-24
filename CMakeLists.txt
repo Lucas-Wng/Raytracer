@@ -10,4 +10,5 @@ add_executable(Raytracer main.cpp
         rtutil.h
         interval.h
         camera.h
-        material.h)
+        material.h
+        threadpool.h)
